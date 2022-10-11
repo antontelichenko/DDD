@@ -2,10 +2,11 @@
 
 const fsp = require('node:fs').promises;
 const path = require('node:path');
-const server = require('./ws.js');
 const staticServer = require('./static.js');
 const load = require('./load.js');
-const db = require('./db.js');
+const config = require('./config');
+const server = require(`./${config.transport}.js`);
+const db = require('./db.js')(config.pgConfig);
 const hash = require('./hash.js');
 const logger = require('./logger.js');
 
@@ -26,6 +27,6 @@ const routing = {};
     routing[serviceName] = await load(filePath, sandbox);
   }
 
-  staticServer('./static', 8000);
-  server(routing, 8001);
+  staticServer('./static', config.staticPort);
+  server(routing, config.apiPort);
 })();
