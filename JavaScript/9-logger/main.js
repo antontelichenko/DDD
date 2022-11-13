@@ -6,12 +6,14 @@ const staticServer = require('./static.js');
 const load = require('./load.js');
 const config = require('./config');
 const server = require(`./${config.transport}.js`);
+const fastifyServer = require(`./fastifyServer`);
 const db = require('./db.js')(config.pgConfig);
 const hash = require('./hash.js');
 const logger = require('./logger.js');
+const pinoLogger = require('pino')();
 
 const sandbox = {
-  console: Object.freeze(logger),
+  console: Object.freeze(config.customLogger ? pinoLogger : logger),
   db: Object.freeze(db),
   common: { hash },
 };
@@ -28,5 +30,9 @@ const routing = {};
   }
 
   staticServer('./static', config.staticPort);
-  server(routing, config.apiPort);
+  if (config.framework === 'native') {
+    server(routing, config.apiPort);
+  } else {
+    fastifyServer(routing, config.apiPort)
+  }
 })();

@@ -54,8 +54,10 @@ const scaffold = (url) => {
   return transport[protocol](url);
 };
 
+let api;
+// http ws
 (async () => {
-  const api = await scaffold('http://localhost:8001')({
+  api = await scaffold('http://localhost:8001')({
     user: {
       create: ['record'],
       read: ['id'],
